@@ -35,7 +35,7 @@ exports.signup = async (req, res) => {
 
         if(newUser) {
             // GENERATE TOKEN
-            //generateTokenAndSetCookie(newUser._id, res);
+            generateTokenAndSetCookie(newUser._id, res);
             await newUser.save();
 
             res.status(201).json({
@@ -49,7 +49,7 @@ exports.signup = async (req, res) => {
         }          
     }
     catch(error) {
-        console.log(`Error signing up user: ${error}`);
+        console.log(`Error on user signing up: ${error}`);
         res.status(500).json({error: 'Internal server error'});
     }
 }
