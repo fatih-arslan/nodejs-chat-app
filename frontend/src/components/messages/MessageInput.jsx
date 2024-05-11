@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { BsSend } from "react-icons/bs";
+import { BiMap } from "react-icons/bi";
 import useSendMessage from "../../hooks/useSendMessage";
 
 const MessageInput = () => {
@@ -13,6 +14,21 @@ const MessageInput = () => {
 		setMessage("");
 	};
 
+	const handleLocationClick = async () => {
+		if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const location = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                };
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`;
+                await sendMessage(`[MAP] ${mapUrl}`);
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    };
+
 	return (
 		<form className='px-4 my-3' onSubmit={handleSubmit}>
 			<div className='w-full relative'>
@@ -23,6 +39,9 @@ const MessageInput = () => {
 					value={message}
 					onChange={(e) => setMessage(e.target.value)}
 				/>
+				<button type="button" className="absolute inset-y-0 end-14 flex items-center pe-3" onClick={handleLocationClick}>
+                    <BiMap className="text-white" />
+                </button>
 				<button type='submit' className='absolute inset-y-0 end-0 flex items-center pe-3'>
 					{loading ? <div className='loading loading-spinner'></div> : <BsSend />}
 				</button>
