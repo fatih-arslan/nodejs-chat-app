@@ -1,3 +1,2 @@
-## Chat App with Node.js
-This project is a chat application built with Node.js and Express.js, utilizing MongoDB for the database and Socket.IO for real-time messaging. JSON Web Token (JWT) is used for user authentication. 
-The application was created to gain practical experience with web sockets and node.js.
+Chat App with Node.js
+This project is a chat application built with Node.js and Express.js, utilizing MongoDB for the database, Socket.IO for real-time messaging and Geolocation API for location sharing. User authentication is handled with JSON Web Token (JWT). It was developed to gain practical experience with web sockets and node.js.
