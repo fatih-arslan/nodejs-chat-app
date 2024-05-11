@@ -7,7 +7,7 @@ const messageRoutes = require('./routes/message.routes');
 const userRoutes = require('./routes/user.routes');
 const connectToMongoDB = require('./db/connectToMongoDB');
 
-const app = express();
+const {app, server} = require('./socket/socket');
 
 dotenv.config();
 
@@ -20,7 +20,7 @@ app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     connectToMongoDB();
     console.log(`Listening on port: ${PORT}`);
 })
