@@ -2,19 +2,24 @@ const User = require('../models/user.model.js');
 const genderEnum = require('../enums/genderEnum');
 const bcrypt = require('bcryptjs');
 const generateTokenAndSetCookie = require('../utils/generateWebToken');
+const asyncErrorHandler = require('../utils/asyncErrorHandler.js');
+const syncErrorHandler = require('../utils/syncErrorHandler.js');
+const CustomError = require('../utils/customError.js');
 
-exports.signup = async (req, res) => {
-    try{
+exports.signup = asyncErrorHandler(
+    async (req, res, next) => {
         const {fullName, username, password, confirmPassword, gender} = req.body;
 
         if(password !== confirmPassword) {
-            return res.status(400).json({error: "Passwords don't match"});
+            const error = new CustomError("Passwords don't match", 400);
+            return next(error);
         }
 
         const user = await User.findOne({username});
 
         if(user) {
-            return res.status(400).json({error: 'Username already exists'});
+            const error = new CustomError("Username already exists", 400);
+            return next(error);
         }
 
         // HASH PASSWORD 
@@ -45,47 +50,37 @@ exports.signup = async (req, res) => {
                 profilePic: newUser.profilePic
             });
         } else {
-            res.status(400).json({error: 'Invalid user data'});
-        }          
+            const error = new CustomError("Invalid user data", 400);
+            return next(error);
+        }              
     }
-    catch(error) {
-        console.log(`Error on user signing up: ${error}`);
-        res.status(500).json({error: 'Internal server error'});
-    }
-}
+);
 
-exports.login = async (req, res) => {
-    try {
+exports.login = asyncErrorHandler(
+    async (req, res, next) => {
         const {username, password} = req.body;
         const user = await User.findOne({username});
         const isPasswordCorrect = await bcrypt.compare(password, user?.password || ''); // will compare with an empty string if the user is null
 
         if(!user || !isPasswordCorrect) {
-            return res.status(400).json({error: 'Invalid username or password'});
+            const error = new CustomError("Invalid username or password", 400);
+            return next(error)
         }
         // GENERATE TOKEN
         generateTokenAndSetCookie(user._id, res);
 
         res.status(200).json({
-                _id: user._id,
-                fullName: user.fullName,
-                username: user.username,
-                profilePic: user.profilePic
-            });        
+            _id: user._id,
+            fullName: user.fullName,
+            username: user.username,
+            profilePic: user.profilePic
+        });        
     }
-    catch (error) {
-        console.log(`Error on user login: ${error}`);
-        res.status(500).json({error: 'Internal server error'});
-    }
-}
+);
 
-exports.logout = (req, res) => {
-    try {
+exports.logout = syncErrorHandler(
+    (req, res, next) => {
         res.clearCookie('jwt');
         res.status(200).json({message: 'Logged out successfully'});
     }
-    catch(error) {
-        console.log(`Error on user logout: ${error}`);
-        res.status(500).json({error: 'Internal server error'});
-    }
-}
+);
